@@ -2,12 +2,14 @@
 ## Here we write a pair of functions that cache the inverse of a matrix.
 
 ## makeCacheMatrix: This function creates a special "matrix" object that can cache its inverse.
-
+## inverseX defualt NULL which is used to test whether the inversed matix has been computed
+## set method is thought to be the only way to modify the cached matrix value
+## use identical to test whether the matix is changed, if not, no need to recompute inversed matrix
 makeCacheMatrix <- function(x = matrix()) {
   inverseX <- NULL
   get <- function() x
   set <- function(y){
-    if(y==x){
+    if(identical(x,y)){
       message("same matrix value, no need to reset and clear inverse")
     }else{
       x <<- y
@@ -26,7 +28,7 @@ makeCacheMatrix <- function(x = matrix()) {
 
 cacheSolve <- function(x, ...) {
   ## Return a matrix that is the inverse of 'x'
-  inv <- x$getInv
+  inv <- x$getInv()
   if(!is.null(inv)) {
     message("getting cached inverse of matrix")
     return(inv)
@@ -36,3 +38,36 @@ cacheSolve <- function(x, ...) {
   x$setInv(inv)
   inv
 }
+
+## test cases:
+## >m <- matrix(1:4,2,2)
+## >m1 <- matrix(1:4,2,2)
+## >m2 <- matrix(2:5,2,2)
+## >cm <- makeCacheMatrix(m)
+###### first time solve the matrix #####
+## >cacheSolve(cm)
+##        [,1] [,2]
+## [1,]   -2  1.5
+## [2,]    1 -0.5
+##### second time solve #####
+## >cacheSolve(cm)
+## getting cached inverse of matrix
+##        [,1] [,2]
+## [1,]   -2  1.5
+## [2,]    1 -0.5
+##### change value by set method, value not changed #####
+## >cm$set(m1)
+## same matrix value, no need to reset and clear inverse
+##### third solve with value not changed #####
+## >cacheSolve(cm)
+## getting cached inverse of matrix
+##        [,1] [,2]
+## [1,]   -2  1.5
+## [2,]    1 -0.5
+##### change value by set method, value changed #####
+## >cm$set(m2)
+##### forth solve with value changed #####
+## >cacheSolve(cm)
+##        [,1] [,2]
+## [1,] -2.5    2
+## [2,]  1.5   -1
